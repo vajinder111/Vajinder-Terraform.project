@@ -1,0 +1,31 @@
+provider "aws" {
+  region     = "us-east-1"  # North Virginia
+}
+
+resource "tls_private_key" "demo-private" {
+  algorithm = "RSA"
+}
+
+resource "aws_security_group" "project-sg" {
+  name_prefix = "project-sg-"
+
+  # security group
+}
+
+resource "aws_instance" "project-ec2" {
+  ami           = "ami-0261755bbcb8c4a84"
+  associate_public_ip_address = true
+  instance_type = "t2.micro"
+  key_name      = "demo-key"
+  security_groups = [aws_security_group.project-sg.name]
+
+  tags = {
+    Name = "project-ec2"
+  }
+}
+
+resource "local_file" "key-gen" {
+  content         = tls_private_key.demo-private.private_key_pem
+  filename        = "demo-key.pem"
+  file_permission = "0400"
+}
